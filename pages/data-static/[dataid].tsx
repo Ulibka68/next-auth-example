@@ -23,14 +23,14 @@ export default function OneItem(
   // console.log("router.query : ", router.query);
   console.log("props : ", props);
 
-  if (!props.post.id) return <div>Загрузка</div>;
+  if (!props.post || !props.post.id) return <div>Загрузка</div>;
 
   let pictURL = null;
 
   if (props.post.id > -1) {
     if (props.post.pictures.pictures.length > 0) {
       pictURL = props.post.pictures.pictures[0];
-      console.log("pictURL :", pictURL);
+      // console.log("pictURL :", pictURL);
     }
   }
 
@@ -56,7 +56,7 @@ export default function OneItem(
             {/*  картинка*  src={pictURL} */}
             {pictURL && (
               <Image
-                src="https://res.cloudinary.com/dljazkzna/image/upload/v1604679134/img/63.jpg"
+                src={pictURL}
                 alt="Picture of the author"
                 width={300}
                 height={300}
@@ -91,46 +91,49 @@ export async function getStaticPaths() {
 
 type GoodDescription = {
   id: number;
-  название: string;
-  "розничная цена": number;
-  описание: string;
+  название?: string;
+  "розничная цена"?: number;
+  описание?: string;
   "в комплект включено"?: string;
-  валюта: string;
-  fk_Единица_измерения: number;
-  "единица измерения": string;
-  attributes: any;
-  pictures: any;
+  валюта?: string;
+  fk_Единица_измерения?: number;
+  "единица измерения"?: string;
+  attributes?: any;
+  pictures?: any;
 };
 
 type GoodProps = { post?: GoodDescription; error?: string };
 
 export const getStaticProps: GetStaticProps<GoodProps> = async (context) => {
   // console.log("context.params : ", context.params.dataid);
-  const a: number = Number.parseInt(context.params.dataid as string);
+  const idGoodInRouter: number = Number.parseInt(
+    context.params.dataid as string
+  );
   let retData: GoodProps;
   // eslint-disable-next-line prefer-const
   retData = {};
 
-  if (a) {
-    const data: GoodDescription = (await queryOneItem(82)) as GoodDescription;
+  if (idGoodInRouter) {
+    let data: GoodDescription = (await queryOneItem(
+      idGoodInRouter
+    )) as GoodDescription;
 
     if (data.id === -1) {
       retData.error = "По указанному id нет товара";
-      retData.post.id = -1;
+      retData.post = { id: -1 };
     } else {
-      data.attributes = JSON.parse(data.attributes);
-      data.pictures = JSON.parse(data.pictures);
       // data принимает таип RowDataSet, копирование свойств превращает его в обычный объект
-      retData.post = Object.assign({}, data);
+      data = Object.assign({}, data);
+      data.attributes = JSON.parse(data.attributes);
+
+      data.pictures = data.pictures
+        ? JSON.parse(data.pictures)
+        : { pictures: [] };
+      retData.post = data;
     }
   } else {
     retData.error = "Неверен URL запроса";
-    retData.post.id = -1;
+    retData.post = { id: -1 };
   }
-
-  // console.log(retData.post.attributes.attr_list[0]);
-  // console.log(retData.post);
-  // if (retData.post.id != -1) return { props: retData, revalidate: 1 };
-  // else return { props: retData };
   return { props: retData };
 };
