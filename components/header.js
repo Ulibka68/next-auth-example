@@ -97,7 +97,7 @@ export default function Header() {
           </li>
           <li className={styles.navItem}>
             <Link href="/data-static">
-              <a>Загрузка данных из MySQL</a>
+              <a>Меню товаров</a>
             </Link>
           </li>
           <li className={styles.navItem}>

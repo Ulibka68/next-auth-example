@@ -38,7 +38,7 @@ function queryOneItem(itm: number) {
         if (error) throw error;
 
         const returnData = results[0] ? results[0] : { id: -1 };
-        // console.log(returnData);
+
         resolve(returnData);
       }
     );

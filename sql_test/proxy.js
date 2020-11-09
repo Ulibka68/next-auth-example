@@ -1,3 +1,5 @@
+// материал для изучения JS proxy
+
 function negativeArray(array) {
   return new Proxy(array, {
     get: function (target, propKey) {
